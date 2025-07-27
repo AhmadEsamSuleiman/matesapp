@@ -1,0 +1,12 @@
+{
+  "extension": ["js"],
+  "spec": "tests/**/*.spec.js",
+  "timeout": 10000,
+  "recursive": true,
+  "file": ["./tests/setup.js"],
+  "import": [
+    "chai/register-assert.js",
+    "chai/register-expect.js",
+    "chai/register-should.js"
+  ]
+}

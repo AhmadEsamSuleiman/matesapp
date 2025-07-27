@@ -1,0 +1,122 @@
+paths:
+  /engagement/positive:
+    post:
+      tags:
+        - Engagement
+      summary: Record positive engagement on a post
+      description: |
+        Processes a user’s positive engagement (view, like, comment, share, follow) for a given post.
+        Updates both persistent (MongoDB) and, if enabled, real-time (Redis) statistics.
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Engagement data payload
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - engagement
+              properties:
+                engagement:
+                  type: object
+                  required:
+                    - postId
+                  properties:
+                    postId:
+                      type: string
+                      description: ID of the post being engaged with
+                      example: "64a1c2f7e8b9a2d3c4e5f6a7"
+                    viewed:
+                      type: integer
+                      description: 1 if viewed, 0 otherwise
+                      example: 1
+                    completed:
+                      type: integer
+                      description: 1 if content was completed, 0 otherwise
+                      example: 0
+                    liked:
+                      type: integer
+                      description: 1 if liked, 0 otherwise
+                      example: 1
+                    commented:
+                      type: integer
+                      description: 1 if commented, 0 otherwise
+                      example: 0
+                    shared:
+                      type: integer
+                      description: 1 if shared, 0 otherwise
+                      example: 0
+                    followed:
+                      type: integer
+                      description: 1 if creator was followed, 0 otherwise
+                      example: 0
+      responses:
+        "200":
+          description: Engagement processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /engagement/negative:
+    post:
+      tags:
+        - Engagement
+      summary: Record a skip (negative feedback) on a post
+      description: |
+        Processes a user’s explicit “skip” action for a post.
+        Updates user interest models and creator stats in both MongoDB and Redis if enabled.
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Skip data payload
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - skip
+              properties:
+                skip:
+                  type: object
+                  required:
+                    - postId
+                  properties:
+                    postId:
+                      type: string
+                      description: ID of the post being skipped
+                      example: "64a1c2f7e8b9a2d3c4e5f6a7"
+      responses:
+        "200":
+          description: Skip processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
