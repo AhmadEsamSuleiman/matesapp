@@ -1,0 +1,243 @@
+components:
+  schemas:
+    SpecificInterest:
+      type: object
+      description: A user's particular interest within a subcategory.
+      properties:
+        name:
+          type: string
+          example: "Vegan Desserts"
+        score:
+          type: number
+          format: float
+          example: 0.82
+        lastUpdated:
+          type: string
+          format: date-time
+          example: "2024-07-20T10:00:00Z"
+
+    SubInterest:
+      type: object
+      description: A subcategory of interests, like a hobby or favorite topic.
+      properties:
+        name:
+          type: string
+          example: "Baking"
+        score:
+          type: number
+          format: float
+          example: 0.67
+        lastUpdated:
+          type: string
+          format: date-time
+          example: "2024-07-20T10:00:00Z"
+        specific:
+          type: array
+          items:
+            $ref: "#/components/schemas/SpecificInterest"
+
+    Interest:
+      type: object
+      description: A main interest area for a user, such as a broad hobby or field.
+      properties:
+        name:
+          type: string
+          example: "Cooking"
+        score:
+          type: number
+          format: float
+          example: 0.93
+        lastUpdated:
+          type: string
+          format: date-time
+          example: "2024-07-20T10:00:00Z"
+        topSubs:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubInterest"
+        risingSubs:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubInterest"
+
+    Creator:
+      type: object
+      description: A user who creates content, with engagement stats.
+      properties:
+        creatorId:
+          type: string
+          example: "60d0fe4f5311236168a109ca"
+        score:
+          type: number
+          format: float
+          example: 0.55
+        lastUpdated:
+          type: string
+          format: date-time
+          example: "2024-07-20T10:00:00Z"
+        skips:
+          type: integer
+          example: 3
+        lastSkipAt:
+          type: string
+          format: date-time
+          example: "2024-07-19T15:30:00Z"
+
+    Following:
+      type: object
+      description: Someone this user follows.
+      required:
+        - userId
+      properties:
+        userId:
+          type: string
+          example: "60d0fe4f5311236168a109cb"
+        score:
+          type: number
+          format: float
+          example: 0.41
+        lastUpdated:
+          type: string
+          format: date-time
+          example: "2024-07-20T10:00:00Z"
+        skips:
+          type: integer
+          example: 2
+        lastSkipAt:
+          type: string
+          format: date-time
+          example: "2024-07-19T16:00:00Z"
+
+    CreatorInterest:
+      type: object
+      description: Recommended creators for a user, based on engagement.
+      properties:
+        topCreators:
+          type: array
+          items:
+            $ref: "#/components/schemas/Creator"
+        risingCreators:
+          type: array
+          items:
+            $ref: "#/components/schemas/Creator"
+        skippedCreatorsPool:
+          type: array
+          items:
+            type: object
+            properties:
+              creatorId:
+                type: string
+              skips:
+                type: integer
+              lastSkipUpdate:
+                type: string
+                format: date-time
+              reentryAt:
+                type: string
+                format: date-time
+        watchedCreatorsPool:
+          type: array
+          items:
+            type: object
+            properties:
+              creatorId:
+                type: string
+              skips:
+                type: integer
+              lastSkipUpdate:
+                type: string
+                format: date-time
+
+    User:
+      type: object
+      description: A person using the app, with profile and engagement info.
+      required:
+        - firstName
+        - lastName
+        - userName
+        - email
+        - password
+        - passwordConfirm
+      properties:
+        _id:
+          type: string
+          example: "60d0fe4f5311236168a109ce"
+        firstName:
+          type: string
+          example: "Layla"
+        lastName:
+          type: string
+          example: "Hassan"
+        userName:
+          type: string
+          example: "laylahassan"
+        email:
+          type: string
+          format: email
+          example: "layla.hassan@example.com"
+        password:
+          type: string
+          format: password
+          example: "MySecretPass123"
+        passwordConfirm:
+          type: string
+          format: password
+          example: "MySecretPass123"
+        profilePicture:
+          type: string
+          format: uri
+          example: "https://matesapp.com/avatars/layla.jpg"
+        bio:
+          type: string
+          example: "Coffee lover, traveler, and amateur photographer."
+        posts:
+          type: array
+          items:
+            type: string
+            example: "60d0fe4f5311236168a109cf"
+        followers:
+          type: array
+          items:
+            type: string
+            example: "60d0fe4f5311236168a109d0"
+        following:
+          type: array
+          items:
+            $ref: "#/components/schemas/Following"
+        topInterests:
+          type: array
+          items:
+            $ref: "#/components/schemas/Interest"
+        risingInterests:
+          type: array
+          items:
+            $ref: "#/components/schemas/Interest"
+        creatorsInterests:
+          $ref: "#/components/schemas/CreatorInterest"
+        lastRisingReset:
+          type: string
+          format: date-time
+          example: "2024-07-20T10:00:00Z"
+        isVerified:
+          type: boolean
+          example: true
+        active:
+          type: boolean
+          example: true
+        passwordChangedAt:
+          type: string
+          format: date-time
+          nullable: true
+        passwordResetToken:
+          type: string
+          nullable: true
+        passwordResetExpires:
+          type: string
+          format: date-time
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time

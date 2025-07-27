@@ -1,0 +1,165 @@
+paths:
+  /post:
+    post:
+      tags:
+        - Post
+      summary: Create a new post
+      description: Authenticated user creates a post with text, image, category, and subCategory.
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Post payload
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - text
+                - category
+                - subCategory
+              properties:
+                text:
+                  type: string
+                  description: Text content of the post
+                  example: "Just finished a 5K run in the park!"
+                image:
+                  type: string
+                  format: uri
+                  description: Optional image URL for the post
+                  example: "https://images.example.com/run.jpg"
+                category:
+                  type: string
+                  description: Main category for the post
+                  example: "Fitness"
+                subCategory:
+                  type: string
+                  description: Sub‑category for the post
+                  example: "Running"
+      responses:
+        "200":
+          description: Post created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        example: post created
+                      post:
+                        $ref: "#/components/schemas/Post"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /post/{postId}:
+    get:
+      tags:
+        - Post
+      summary: Get a single post
+      description: Retrieve a post by its ID.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: postId
+          in: path
+          description: ID of the post to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Post retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    $ref: "#/components/schemas/Post"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+    delete:
+      tags:
+        - Post
+      summary: Delete a post
+      description: Authenticated user deletes their own post.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: postId
+          in: path
+          description: ID of the post to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Post deleted successfully (no content)
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /post/{postId}/like:
+    patch:
+      tags:
+        - Post
+      summary: Toggle like on a post
+      description: Authenticated user likes or unlikes a post; returns updated like list.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: postId
+          in: path
+          description: ID of the post to like/unlike
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Like status toggled successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  liked:
+                    type: boolean
+                    description: New like state (true = liked)
+                  totalLikes:
+                    type: integer
+                    description: Total number of likes after toggle
+                  likes:
+                    type: array
+                    items:
+                      type: string
+                    description: List of user IDs who currently like the post
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"

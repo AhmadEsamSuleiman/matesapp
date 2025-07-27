@@ -1,0 +1,83 @@
+paths:
+  /comment/{postId}/comments:
+    post:
+      tags:
+        - Comments
+      summary: Add a comment to a post
+      description: Create a new comment on the specified post.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: postId
+          in: path
+          description: ID of the post to comment on
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The comment payload
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - text
+              properties:
+                text:
+                  type: string
+                  example: "This recipe is delicious! Thanks for sharing."
+      responses:
+        "200":
+          description: Comment created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  comment:
+                    $ref: "#/components/schemas/Comment"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+
+  /comment/{postId}/comments/{commentId}:
+    delete:
+      tags:
+        - Comments
+      summary: Delete a comment
+      description: Remove a comment from a post. Only the comment’s author may delete it.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: postId
+          in: path
+          description: ID of the post containing the comment
+          required: true
+          schema:
+            type: string
+        - name: commentId
+          in: path
+          description: ID of the comment to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Comment deleted successfully (no content)
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
