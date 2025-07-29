@@ -1,0 +1,42 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Check out the code
+      - uses: actions/checkout@v4
+
+      # 2. Set up Node.js
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # 3. Install & test
+      - run: npm ci
+      - run: npm test
+
+      # 4. Start ssh‑agent and add your EC2 key
+      - name: Load EC2 SSH key
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+      # 5. Add your EC2 host to known_hosts to avoid MITM prompts
+      - name: Add EC2 to known_hosts
+        run: ssh-keyscan -H 13.62.80.72 >> ~/.ssh/known_hosts
+
+      # 6. Deploy: SSH into EC2, pull, install, and reload PM2
+      - name: Deploy to EC2
+        run: |
+          ssh ubuntu@13.62.80.72 << 'EOF'
+            cd ~/app/matesapp
+            git pull origin main
+            npm ci
+            pm2 reload matesapp
+          EOF
