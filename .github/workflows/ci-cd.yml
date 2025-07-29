@@ -8,6 +8,26 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:6.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand(\"ping\")'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      NODE_ENV: test
+      DB: mongodb://localhost:27017/matesapp_test
+      JWT_SECRET: testsecret
+      JWT_EXPIRES_IN: 90d
+      JWT_COOKIE_EXPIRES_IN: 90
+      USE_REDIS_CACHE: false
+
     steps:
       # 1. Check out the code
       - uses: actions/checkout@v4
@@ -17,22 +37,23 @@ jobs:
         with:
           node-version: 18
 
-      # 3. Install & test
+      # 3. Install & run tests
       - run: npm ci
       - run: npm test
 
-      # 4. Start ssh‑agent and add your EC2 key
+      # 4. Only deploy when on main
       - name: Load EC2 SSH key
+        if: github.ref == 'refs/heads/main'
         uses: webfactory/ssh-agent@v0.5.4
         with:
           ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-      # 5. Add your EC2 host to known_hosts to avoid MITM prompts
       - name: Add EC2 to known_hosts
+        if: github.ref == 'refs/heads/main'
         run: ssh-keyscan -H 13.62.80.72 >> ~/.ssh/known_hosts
 
-      # 6. Deploy: SSH into EC2, pull, install, and reload PM2
       - name: Deploy to EC2
+        if: github.ref == 'refs/heads/main'
         run: |
           ssh ubuntu@13.62.80.72 << 'EOF'
             cd ~/app/matesapp
