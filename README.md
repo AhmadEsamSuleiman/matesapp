@@ -154,3 +154,16 @@
 - **ORM/ODM:** Mongoose
 - **Auth:** JSON Web Tokens (JWT)
 - **Testing:** Mocha, Supertest, Sinon, Chai
+
+---
+
+## TODO
+
+- **Optimize Scoring Logic**  
+  Reduce database round‑trips and simplify the scoring algorithm for better performance.
+
+- **Speed Up Feed Generation**  
+  Refactor feed assembly to minimize latency and lower CPU load.
+
+- **Database Refactor: Interests**  
+  Move user and creator interest stats into their own collections, removing them from the `User` model.
