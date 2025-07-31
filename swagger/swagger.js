@@ -123,7 +123,7 @@ const options = {
           "Operations related to generating and retrieving personalized content feeds.",
       },
       {
-        name: "Posts",
+        name: "Post",
         description:
           "Operations related to content posts (creation, retrieval, updates).",
       },
