@@ -1,0 +1,82 @@
+components:
+  schemas:
+    Reply:
+      type: object
+      description: A reply to a comment, written by another user.
+      required:
+        - author
+        - text
+      properties:
+        _id:
+          type: string
+          description: Unique ID for this reply
+          example: "70e1fe4f5311236168a209db"
+        author:
+          type: string
+          description: User ID of the person who wrote the reply
+          example: "60d0fe4f5311236168a109ce"
+        text:
+          type: string
+          description: What the reply says
+          example: "Thanks for the tip! I'll try that next time."
+        likes:
+          type: array
+          description: User IDs of people who liked this reply
+          items:
+            type: string
+          example: ["60d0fe4f5311236168a109cb"]
+        createdAt:
+          type: string
+          format: date-time
+          description: When the reply was posted
+          example: "2024-07-20T14:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the reply was last edited
+          example: "2024-07-20T14:05:00Z"
+
+    Comment:
+      type: object
+      description: A comment on a post, possibly with replies from other users.
+      required:
+        - author
+        - text
+      properties:
+        _id:
+          type: string
+          description: Unique ID for this comment
+          example: "80f2ef4f5311236168b309dc"
+        author:
+          type: string
+          description: User ID of the person who wrote the comment
+          example: "60d0fe4f5311236168a109ce"
+        post:
+          type: string
+          description: ID of the post this comment belongs to
+          example: "60d0fe4f5311236168a109cf"
+        text:
+          type: string
+          description: What the comment says
+          example: "Loved this post! The photos are beautiful."
+        likes:
+          type: array
+          description: User IDs of people who liked this comment
+          items:
+            type: string
+          example: ["60d0fe4f5311236168a109cb"]
+        replies:
+          type: array
+          description: Replies to this comment
+          items:
+            $ref: "#/components/schemas/Reply"
+        createdAt:
+          type: string
+          format: date-time
+          description: When the comment was posted
+          example: "2024-07-20T13:45:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: When the comment was last edited
+          example: "2024-07-20T13:50:00Z"

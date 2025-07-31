@@ -1,0 +1,32 @@
+components:
+  schemas:
+    GlobalStats:
+      type: object
+      description: Overall stats for a category or subcategory across all users.
+      required:
+        - entityType
+        - name
+      properties:
+        _id:
+          type: string
+          description: Unique ID for this stats record
+          example: "90g3gh4h5311236168c409dd"
+        entityType:
+          type: string
+          description: Type of entity (category or subcategory)
+          enum:
+            - category
+            - subcategory
+          example: "category"
+        name:
+          type: string
+          description: Name of the category or subcategory
+          example: "Travel"
+        impressionCount:
+          type: integer
+          description: How many times content from this entity was shown
+          example: 980
+        totalEngagement:
+          type: number
+          description: Total engagement for this entity
+          example: 312.7

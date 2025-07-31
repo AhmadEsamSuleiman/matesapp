@@ -1,0 +1,36 @@
+paths:
+  /feed:
+    get:
+      tags:
+        - Feed
+      summary: Generate personalized content feed
+      description: >
+        Returns a personalized list of posts for the authenticated user,
+        assembled via interest, creator, trending, and exploration strategies.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Feed generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: success
+                  data:
+                    type: object
+                    properties:
+                      posts:
+                        type: array
+                        description: Array of post objects in the feed
+                        items:
+                          $ref: "#/components/schemas/Post"
+        "401":
+          $ref: "#/components/responses/UnauthorizedError"
+        "404":
+          $ref: "#/components/responses/NotFoundError"
+        "500":
+          $ref: "#/components/responses/InternalServerError"

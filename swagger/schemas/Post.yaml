@@ -1,0 +1,139 @@
+components:
+  schemas:
+    WindowEvent:
+      type: object
+      description: A user interaction event used for scoring a post over time to detect rising.
+      required:
+        - ts
+        - weight
+      properties:
+        ts:
+          type: string
+          format: date-time
+          description: When the event happened
+          example: "2024-07-20T08:15:00Z"
+        weight:
+          type: number
+          description: How much this event influences the post's score
+          example: 1.0
+
+    Post:
+      type: object
+      description: A post shared by a user, including text, images, and engagement data.
+      required:
+        - creator
+        - category
+        - subCategory
+      properties:
+        _id:
+          type: string
+          description: Unique ID for this post
+          example: "60d0fe4f5311236168a109cf"
+        creator:
+          type: string
+          description: User ID of the person who made the post
+          example: "60d0fe4f5311236168a109ce"
+        text:
+          type: string
+          description: What the user wrote in the post
+          example: "Had an amazing brunch at the new cafe downtown!"
+        image:
+          type: string
+          format: uri
+          description: Link to an image attached to the post
+          example: "https://images.matesapp.com/brunch.jpg"
+        likes:
+          type: array
+          items:
+            type: string
+          description: User IDs of people who liked this post
+          example: ["60d0fe4f5311236168a109cb", "60d0fe4f5311236168a109cd"]
+        comments:
+          type: array
+          items:
+            type: string
+          description: IDs of comments on this post
+          example: ["70e1fe4f5311236168a209da", "70e1fe4f5311236168a209db"]
+        category:
+          type: string
+          description: Main topic of the post
+          example: "Food"
+        subCategory:
+          type: string
+          description: More specific topic under the main category
+          example: "Restaurants"
+        specific:
+          type: string
+          nullable: true
+          description: Even more specific interest, if any
+          example: "Brunch Spots"
+        impressionCount:
+          type: integer
+          description: How many times this post was shown to users
+          example: 320
+        engagementSum:
+          type: number
+          description: Total likes, comments, and other engagement
+          example: 42
+        rawScore:
+          type: number
+          description: Initial score before adjustments
+          example: 0.92
+        trendingScore:
+          type: number
+          description: Score showing how popular the post is right now
+          example: 1.15
+        lastTrendingUpdate:
+          type: string
+          format: date-time
+          description: Last time the trending score was updated
+          example: "2024-07-20T09:00:00Z"
+        historicalVelocityEMA:
+          type: number
+          description: Long-term popularity score
+          example: 0.85
+        shortTermVelocityEMA:
+          type: number
+          description: Short-term popularity score
+          example: 1.05
+        bayesianScore:
+          type: number
+          description: Engagement score adjusted for reliability
+          example: 0.88
+        isEvergreen:
+          type: boolean
+          description: Is this post always relevant?
+          example: true
+        windowEvents:
+          type: array
+          items:
+            $ref: "#/components/schemas/WindowEvent"
+          description: List of engagement events for this post
+        isRising:
+          type: boolean
+          description: Is this post quickly gaining popularity?
+          example: true
+        createdAt:
+          type: string
+          format: date-time
+          description: When the post was created
+          example: "2024-07-20T08:00:00Z"
+        lastScoreUpdate:
+          type: string
+          format: date-time
+          description: Last time the post's score was updated
+          example: "2024-07-20T09:00:00Z"
+        lastWindowRoll:
+          type: string
+          format: date-time
+          description: Last time engagement events were recalculated
+          example: "2024-07-20T09:05:00Z"
+        averageViewTime:
+          type: number
+          description: Average time (in seconds) people spent viewing this post
+          example: 32.7
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last time the post was edited
+          example: "2024-07-20T09:10:00Z"
