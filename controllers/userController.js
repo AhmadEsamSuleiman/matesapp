@@ -98,7 +98,7 @@ export const getUserPosts = catchAsync(async (req, res, next) => {
   const { error } = userIdParamSchema.validate(req.params);
   if (error) return next(new AppError(error.details[0].message, 400));
 
-  const page = parseInt(req.query.page, 10) || 1;
+  const page = parseInt(req.sanitizedQuery.page, 10) || 1;
   const { posts, results } = await getUserPostsService(req.params.id, page);
 
   res.status(200).json({

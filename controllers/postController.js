@@ -43,8 +43,8 @@ export const getPost = catchAsync(async (req, res, next) => {
 
 export const getPostComments = catchAsync(async (req, res, next) => {
   const { postId } = req.params;
-  const page = parseInt(req.query.page, 10) || 1;
-  const limit = parseInt(req.query.limit, 10) || 20;
+  const page = parseInt(req.sanitizedQuery.page, 10) || 1;
+  const limit = parseInt(req.sanitizedQuery.limit, 10) || 20;
 
   const result = await getPostCommentsService(postId, page, limit);
 
