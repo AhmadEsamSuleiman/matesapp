@@ -45,8 +45,10 @@ export const SESSION_BLEND_ALPHA = 0.25;
 /**
  * @constant {number} HARSKIP_THRESHOLD
  * @description
- * The number of accumulated "skips" (negative interactions) a creator must reach within a user's profile to trigger a "hard-skip" demotion.
- * Hard-skipped creators are temporarily removed from recommendation pools and face a longer re-entry delay before they can be considered again.
+ * The number of accumulated "skips" (negative interactions) a creator must reach within a user's profile
+ * to trigger a "hard-skip" demotion.
+ * Hard-skipped creators are temporarily removed from recommendation pools
+ * and face a longer re-entry delay before they can be considered again.
  */
 export const HARSKIP_THRESHOLD = 10;
 

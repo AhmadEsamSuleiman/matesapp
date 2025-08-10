@@ -184,7 +184,7 @@ paths:
         "404":
           $ref: "#/components/responses/NotFoundError"
 
-  /user/me/updatePassword:
+  /user/updatePassword:
     patch:
       tags:
         - User

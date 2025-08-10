@@ -149,10 +149,7 @@ const userSchema = new mongoose.Schema(
     email: {
       type: String,
       required: [true, "please enter your email address"],
-      unique: [
-        true,
-        "email address is already in use, please user another one",
-      ],
+      unique: [true, "email address is already in use, please user another one"],
       lowercase: true,
       validate: [validator.isEmail, "please enter a valid email address"],
     },
@@ -167,7 +164,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, "please confirm your password"],
       validate: {
-        validator: function (passConfirm) {
+        validator(passConfirm) {
           return this.password === passConfirm;
         },
         message: "password and password confirm should be the same",
@@ -219,7 +216,7 @@ const userSchema = new mongoose.Schema(
     passwordResetToken: String,
     passwordResetExpires: Date,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 userSchema.pre("save", async function (next) {
@@ -228,7 +225,7 @@ userSchema.pre("save", async function (next) {
   this.password = await bcrypt.hash(this.password, 12);
   this.passwordConfirm = undefined;
 
-  next();
+  return next();
 });
 
 userSchema.pre("save", function (next) {
@@ -236,10 +233,11 @@ userSchema.pre("save", function (next) {
 
   this.passwordChangedAt = Date.now() - 1000;
 
-  next();
+  return next();
 });
 
 userSchema.methods.comparePassword = async function (candidatePassword) {
+  // eslint-disable-next-line no-return-await
   return await bcrypt.compare(candidatePassword, this.password);
 };
 

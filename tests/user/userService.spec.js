@@ -6,18 +6,16 @@ import User from "../../models/userModel.js";
 import Post from "../../models/postModel.js";
 import AppError from "../../utils/appError.js";
 
-import {
-  followUnFollowService,
-  getUserPostsService,
-  updateMeService,
-  updateMyPasswordService,
-} from "../../services/user/userService.js";
+import { followUnFollowService, getUserPostsService, updateMeService, updateMyPasswordService } from "../../services/user/userService.js";
 
 describe("User Service Unit Tests", () => {
   afterEach(() => sinon.restore());
 
   describe("followUnFollowService", () => {
-    let userId, targetId, userDoc, targetDoc;
+    let userId;
+    let targetId;
+    let userDoc;
+    let targetDoc;
 
     beforeEach(() => {
       userId = new mongoose.Types.ObjectId();
@@ -40,28 +38,17 @@ describe("User Service Unit Tests", () => {
 
     it("throws if target user not found", async () => {
       sinon.stub(User, "findById").withArgs(targetId).resolves(null);
-      await expect(followUnFollowService(userId, targetId)).to.be.rejectedWith(
-        AppError,
-        /doesnt exist/
-      );
+      await expect(followUnFollowService(userId, targetId)).to.be.rejectedWith(AppError, /doesnt exist/);
     });
 
     it("throws if trying to follow self", async () => {
       sinon.stub(User, "findById").withArgs(targetId).resolves(targetDoc);
-      await expect(
-        followUnFollowService(targetId, targetId)
-      ).to.be.rejectedWith(AppError, /cant follow\/unfollow yourself/);
+      await expect(followUnFollowService(targetId, targetId)).to.be.rejectedWith(AppError, /cant follow\/unfollow yourself/);
     });
 
     it("follows when not already following", async () => {
-      sinon
-        .stub(User, "findById")
-        .onFirstCall()
-        .resolves(targetDoc)
-        .onSecondCall()
-        .resolves(userDoc);
+      sinon.stub(User, "findById").onFirstCall().resolves(targetDoc).onSecondCall().resolves(userDoc);
 
-      // single stub for both updates
       const updateStub = sinon.stub(User, "findByIdAndUpdate").resolves();
 
       const { to, action } = await followUnFollowService(userId, targetId);
@@ -69,47 +56,38 @@ describe("User Service Unit Tests", () => {
       expect(to).to.equal(targetDoc);
       expect(action).to.equal("followed");
 
-      // first call adds to user's following
       expect(
         updateStub.firstCall.calledWith(userId, {
           $addToSet: { following: { userId: targetId } },
-        })
+        }),
       ).to.be.true;
 
-      // second call adds to target's followers
       expect(
         updateStub.secondCall.calledWith(targetId, {
           $addToSet: { followers: userId },
-        })
+        }),
       ).to.be.true;
     });
 
     it("unfollows when already following", async () => {
       userDoc.following = [{ userId: targetId }];
-      sinon
-        .stub(User, "findById")
-        .onFirstCall()
-        .resolves(targetDoc)
-        .onSecondCall()
-        .resolves(userDoc);
+      sinon.stub(User, "findById").onFirstCall().resolves(targetDoc).onSecondCall().resolves(userDoc);
 
       const updateStub = sinon.stub(User, "findByIdAndUpdate").resolves();
 
       const { action } = await followUnFollowService(userId, targetId);
       expect(action).to.equal("unfollowed");
 
-      // first call pulls from user's following
       expect(
         updateStub.firstCall.calledWith(userId, {
           $pull: { following: { userId: targetId } },
-        })
+        }),
       ).to.be.true;
 
-      // second call pulls from target's followers
       expect(
         updateStub.secondCall.calledWith(targetId, {
           $pull: { followers: userId },
-        })
+        }),
       ).to.be.true;
     });
   });
@@ -119,10 +97,7 @@ describe("User Service Unit Tests", () => {
 
     it("throws if user not found", async () => {
       sinon.stub(User, "findById").resolves(null);
-      await expect(getUserPostsService(userId, 1)).to.be.rejectedWith(
-        AppError,
-        /User not found/
-      );
+      await expect(getUserPostsService(userId, 1)).to.be.rejectedWith(AppError, /User not found/);
     });
 
     it("returns paginated posts", async () => {
@@ -152,10 +127,7 @@ describe("User Service Unit Tests", () => {
       sinon.stub(User, "findByIdAndUpdate").returns({
         select: sinon.stub().resolves(null),
       });
-      await expect(updateMeService(userId, { bio: "x" })).to.be.rejectedWith(
-        AppError,
-        /User not found/
-      );
+      await expect(updateMeService(userId, { bio: "x" })).to.be.rejectedWith(AppError, /User not found/);
     });
 
     it("updates and returns user", async () => {
@@ -178,9 +150,7 @@ describe("User Service Unit Tests", () => {
       sinon.stub(User, "findById").returns({
         select: sinon.stub().resolves(null),
       });
-      await expect(
-        updateMyPasswordService(userId, "old", "new", "new")
-      ).to.be.rejectedWith(AppError, /User not found/);
+      await expect(updateMyPasswordService(userId, "old", "new", "new")).to.be.rejectedWith(AppError, /User not found/);
     });
 
     it("throws if current password wrong", async () => {
@@ -188,9 +158,7 @@ describe("User Service Unit Tests", () => {
       sinon.stub(User, "findById").returns({
         select: sinon.stub().resolves(fakeUser),
       });
-      await expect(
-        updateMyPasswordService(userId, "wrong", "new", "new")
-      ).to.be.rejectedWith(AppError, /current password is incorrect/);
+      await expect(updateMyPasswordService(userId, "wrong", "new", "new")).to.be.rejectedWith(AppError, /current password is incorrect/);
     });
 
     it("throws if new passwords mismatch", async () => {
@@ -198,9 +166,7 @@ describe("User Service Unit Tests", () => {
       sinon.stub(User, "findById").returns({
         select: sinon.stub().resolves(fakeUser),
       });
-      await expect(
-        updateMyPasswordService(userId, "oldPass", "a", "b")
-      ).to.be.rejectedWith(AppError, /do not match/);
+      await expect(updateMyPasswordService(userId, "oldPass", "a", "b")).to.be.rejectedWith(AppError, /do not match/);
     });
 
     it("updates password when data valid", async () => {
@@ -213,12 +179,7 @@ describe("User Service Unit Tests", () => {
         select: sinon.stub().resolves(fakeUser),
       });
 
-      const result = await updateMyPasswordService(
-        userId,
-        "oldPass",
-        "newPass",
-        "newPass"
-      );
+      const result = await updateMyPasswordService(userId, "oldPass", "newPass", "newPass");
 
       expect(fakeUser.password).to.equal("newPass");
       expect(fakeUser.passwordConfirm).to.equal("newPass");

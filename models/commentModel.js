@@ -21,7 +21,7 @@ const replySchema = new mongoose.Schema(
       default: [],
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 const commentSchema = new mongoose.Schema(
@@ -52,7 +52,7 @@ const commentSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 const Comment = mongoose.model("Comment", commentSchema);

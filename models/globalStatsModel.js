@@ -15,19 +15,18 @@ const globalStatsSchema = new mongoose.Schema(
     },
     impressionCount: {
       type: Number,
-      default: 0, // number of events recorded
+      default: 0,
     },
     totalEngagement: {
       type: Number,
-      default: 0, // sum of engagementScore across events
+      default: 0,
     },
   },
   {
     timestamps: false,
-  }
+  },
 );
 
-// Unique index on entityType + name
 globalStatsSchema.index({ entityType: 1, name: 1 }, { unique: true });
 
 const GlobalStats = mongoose.model("GlobalStats", globalStatsSchema);

@@ -1,0 +1,13 @@
+{
+  "$id": "/schemas/post-score-event.json",
+  "type": "object",
+  "properties": {
+    "postId": { "type": "string", "pattern": "^[a-fA-F0-9]{24}$" },
+    "userId": { "type": "string", "pattern": "^[a-fA-F0-9]{24}$" },
+    "engagementType": { "type": "string", "enum": ["engagement"] },
+    "scoreDelta": { "type": "number" },
+    "timestamp": { "type": "string", "format": "date-time" }
+  },
+  "required": ["postId", "userId", "engagementType", "scoreDelta", "timestamp"],
+  "additionalProperties": false
+}

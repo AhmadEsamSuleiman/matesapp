@@ -49,12 +49,14 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: ssh-keyscan -H 13.62.80.72 >> ~/.ssh/known_hosts
 
-      - name: Deploy to EC2
+      - name: Deploy to EC2 with Docker
         if: github.ref == 'refs/heads/main'
         run: |
           ssh ubuntu@13.62.80.72 << 'EOF'
             cd ~/app/matesapp
             git pull origin main
-            npm ci
-            pm2 reload matesapp
+            docker-compose down # Stop and remove old containers
+            docker-compose pull # Pull latest images for services
+            docker-compose build # Rebuild app image with latest code
+            docker-compose up -d # Start new containers in detached mode
           EOF

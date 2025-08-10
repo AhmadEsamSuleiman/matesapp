@@ -36,10 +36,7 @@ describe("Feed Service Unit Tests", () => {
         skippedCreators: [],
       };
 
-      const { categoryPools, creatorPools } = feedService.buildInterestPools(
-        user,
-        session
-      );
+      const { categoryPools, creatorPools } = feedService.buildInterestPools(user, session);
 
       expect(categoryPools.top).to.eql([
         { name: "SessCat2", score: 3 },
@@ -70,10 +67,7 @@ describe("Feed Service Unit Tests", () => {
 
       const session = {};
 
-      const { categoryPools, creatorPools } = feedService.buildInterestPools(
-        user,
-        session
-      );
+      const { categoryPools, creatorPools } = feedService.buildInterestPools(user, session);
 
       expect(categoryPools.top).to.eql([
         { name: "UserCat1", score: 1 },
@@ -85,9 +79,7 @@ describe("Feed Service Unit Tests", () => {
         { creatorId: "userB", score: 0.1 },
       ]);
       expect(creatorPools.rising).to.eql([{ creatorId: "userC", score: 0.4 }]);
-      expect(creatorPools.followed).to.eql([
-        { creatorId: "userF", score: 0.9 },
-      ]);
+      expect(creatorPools.followed).to.eql([{ creatorId: "userF", score: 0.9 }]);
       expect(creatorPools.skipped).to.eql([{ creatorId: "userD", score: 0.0 }]);
       expect(creatorPools.watched).to.eql([{ creatorId: "userE", score: 0.0 }]);
     });
@@ -108,21 +100,20 @@ describe("Feed Service Unit Tests", () => {
       const reentryIds = ["oscar"];
       const watchedIds = ["peggy"];
 
-      const { categoryBucketMap, creatorBucketMap } =
-        feedService.buildBucketMaps(
-          topCats,
-          risingCats,
-          extraCats1,
-          extraCats2,
-          topCreators,
-          risingCreators,
-          extraCreators1,
-          extraCreators2,
-          followedCreators,
-          extraFollowed,
-          reentryIds,
-          watchedIds
-        );
+      const { categoryBucketMap, creatorBucketMap } = feedService.buildBucketMaps(
+        topCats,
+        risingCats,
+        extraCats1,
+        extraCats2,
+        topCreators,
+        risingCreators,
+        extraCreators1,
+        extraCreators2,
+        followedCreators,
+        extraFollowed,
+        reentryIds,
+        watchedIds,
+      );
 
       expect(categoryBucketMap).to.deep.equal({
         Tech: "CAT:TOP",
@@ -154,9 +145,7 @@ describe("Feed Service Unit Tests", () => {
         .fill()
         .map((_, i) => ({ _id: `e${i}` }));
 
-      const result = await feedService.assembleFeed(scored, new Set(), () =>
-        Promise.resolve(fakeExplore)
-      );
+      const result = await feedService.assembleFeed(scored, new Set(), () => Promise.resolve(fakeExplore));
 
       expect(result.length).to.equal(scored.length + fakeExplore.length);
       expect(result.slice(-fakeExplore.length)).to.eql(fakeExplore);
@@ -167,9 +156,7 @@ describe("Feed Service Unit Tests", () => {
         .fill()
         .map((_, i) => ({ bucket: "x", _id: `${i}` }));
 
-      const result = await feedService.assembleFeed(many, new Set(), () =>
-        Promise.resolve([])
-      );
+      const result = await feedService.assembleFeed(many, new Set(), () => Promise.resolve([]));
 
       expect(result.length).to.be.at.most(FEED_SIZE);
     });

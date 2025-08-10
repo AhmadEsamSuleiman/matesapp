@@ -1,38 +1,26 @@
-import catchAsync from "./../utils/catchAsync.js";
-import User from "./../models/userModel.js";
 import jwt from "jsonwebtoken";
-import AppError from "./../utils/appError.js";
-import { promisify } from "util";
-import isEnabled from "../utils/isRedisEnabled.js";
 import { v4 as uuid } from "uuid";
+import catchAsync from "../utils/catchAsync.js";
+import AppError from "../utils/appError.js";
+import isEnabled from "../utils/isRedisEnabled.js";
 
-import {
-  loginUserService,
-  signUpService,
-  verifyTokenService,
-} from "../services/auth/authService.js";
+import { loginUserService, signUpService, verifyTokenService } from "../services/auth/authService.js";
 import { loginSchema, signUpSchema } from "../validators/authValidator.js";
 
-import { startUserSession } from "../session/sessionBegin.js";
-import {
-  refreshUserSession,
-  getSessionData,
-} from "../session/sessionHelpers.js";
+import startUserSession from "../session/sessionBegin.js";
+import { refreshUserSession, getSessionData } from "../session/sessionHelpers.js";
 import { SESSION_TTL_SECONDS } from "../constants/sessionConstants.js";
 
-const signToken = (userId) => {
-  return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+const signToken = (userId) =>
+  jwt.sign({ id: userId }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
-};
 
 const createSendToken = (user, statusCode, res) => {
   const token = signToken(user._id);
 
   const cookieOptions = {
-    expires: new Date(
-      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
-    ),
+    expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
     httpOnly: true,
   };
 
@@ -87,10 +75,7 @@ export const logout = catchAsync(async (req, res, next) => {
 export const protect = catchAsync(async (req, res, next) => {
   let token;
 
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
+  if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
     token = req.headers.authorization.split(" ")[1];
   } else if (req.cookies.jwt) {
     token = req.cookies.jwt;
@@ -105,18 +90,16 @@ export const protect = catchAsync(async (req, res, next) => {
   req.user = user;
 
   if (isEnabled()) {
-    let sid = req.cookies.sid;
-    let sessionData = sid && (await getSessionData(sid));
+    let { sid } = req.cookies;
+    const sessionData = sid && (await getSessionData(sid));
 
     if (sessionData) {
-      // Refresh living sessions
       try {
         await refreshUserSession(sid);
       } catch (err) {
         console.error("Error refreshing session last-access:", err);
       }
     } else {
-      // Either no sid or expired session → issue a brand-new one
       sid = uuid();
       try {
         await startUserSession(user._id, sid);
@@ -125,7 +108,6 @@ export const protect = catchAsync(async (req, res, next) => {
       }
     }
 
-    // (re)set the cookie with the new or refreshed sid
     res.cookie("sid", sid, {
       httpOnly: true,
       maxAge: SESSION_TTL_SECONDS * 1000,

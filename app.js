@@ -1,12 +1,12 @@
 import express from "express";
 import swaggerUi from "swagger-ui-express";
-import swaggerSpec from "./swagger/swagger.js";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import mongoSanitize from "express-mongo-sanitize";
 import hpp from "hpp";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import swaggerSpec from "./swagger/swagger.js";
 import userRouter from "./routes/userRoutes.js";
 import feedRouter from "./routes/feedRoutes.js";
 import engagementRouter from "./routes/engagementRoutes.js";
@@ -23,10 +23,7 @@ const app = express();
 app.use(helmet());
 app.disable("x-powered-by");
 
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://13-62-80-72.sslip.io",
-];
+const allowedOrigins = ["http://localhost:3000", "https://13-62-80-72.sslip.io"];
 
 app.use(
   cors({
@@ -40,7 +37,7 @@ app.use(
     },
     credentials: true,
     optionsSuccessStatus: 200,
-  })
+  }),
 );
 
 app.use(express.json({ limit: "10kb" }));

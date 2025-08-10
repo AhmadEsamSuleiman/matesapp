@@ -1,10 +1,5 @@
-process.env.USE_REDIS_CACHE = "false";
-
 import { fileURLToPath } from "url";
 import path from "path";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 import dotenv from "dotenv";
 import mongoose from "mongoose";
@@ -12,6 +7,11 @@ import sinon from "sinon";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import * as chai from "chai";
 import chaiAsPromised from "chai-as-promised";
+
+process.env.USE_REDIS_CACHE = "false";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 chai.use(chaiAsPromised);
 
@@ -27,10 +27,9 @@ before(async () => {
 });
 
 afterEach(async () => {
-  const collections = mongoose.connection.collections;
-  for (const c of Object.values(collections)) {
-    await c.deleteMany({});
-  }
+  const { collections } = mongoose.connection;
+
+  await Promise.all(Object.values(collections).map((c) => c.deleteMany({})));
 });
 
 after(async () => {

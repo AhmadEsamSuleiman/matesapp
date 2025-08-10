@@ -2,12 +2,11 @@ import Post from "../../models/postModel.js";
 import Comment from "../../models/commentModel.js";
 import AppError from "../../utils/appError.js";
 
-export const createPostService = async (userId, postData) => {
-  return await Post.create({
+export const createPostService = async (userId, postData) =>
+  Post.create({
     creator: userId,
     ...postData,
   });
-};
 
 export const getPostService = async (postId) => {
   const post = await Post.findById(postId);
@@ -18,10 +17,7 @@ export const getPostService = async (postId) => {
 export const getPostCommentsService = async (postId, page = 1, limit = 20) => {
   const skip = (page - 1) * limit;
 
-  const comments = await Comment.find({ post: postId })
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit);
+  const comments = await Comment.find({ post: postId }).sort({ createdAt: -1 }).skip(skip).limit(limit);
 
   const total = await Comment.countDocuments({ post: postId });
 
@@ -39,9 +35,7 @@ export const toggleLikeService = async (userId, postId) => {
 
   const alreadyLiked = post.likes.includes(userId);
 
-  const updateOp = alreadyLiked
-    ? { $pull: { likes: userId } }
-    : { $addToSet: { likes: userId } };
+  const updateOp = alreadyLiked ? { $pull: { likes: userId } } : { $addToSet: { likes: userId } };
 
   const updated = await Post.findByIdAndUpdate(postId, updateOp, {
     new: true,

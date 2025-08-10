@@ -7,10 +7,7 @@ import {
   toggleLikeService,
   deletePostService,
 } from "../services/post/postService.js";
-import {
-  createPostSchema,
-  postIdParamSchema,
-} from "../validators/postValidator.js";
+import { createPostSchema, postIdParamSchema } from "../validators/postValidator.js";
 
 export const createPost = catchAsync(async (req, res, next) => {
   const { error, value } = createPostSchema.validate(req.body);

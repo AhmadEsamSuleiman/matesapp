@@ -4,10 +4,7 @@ import mongoose from "mongoose";
 import Comment from "../../models/commentModel.js";
 import Post from "../../models/postModel.js";
 import AppError from "../../utils/appError.js";
-import {
-  addCommentService,
-  deleteCommentService,
-} from "../../services/comment/commentService.js";
+import { addCommentService, deleteCommentService } from "../../services/comment/commentService.js";
 
 describe("Comment Service Unit Tests", () => {
   afterEach(() => {
@@ -18,9 +15,7 @@ describe("Comment Service Unit Tests", () => {
     it("throws if post does not exist", async () => {
       sinon.stub(Post, "findById").resolves(null);
 
-      await expect(
-        addCommentService("user1", "post1", "hello")
-      ).to.be.rejectedWith(AppError, /post not found/);
+      await expect(addCommentService("user1", "post1", "hello")).to.be.rejectedWith(AppError, /post not found/);
     });
 
     it("creates comment, pushes to post, and returns it", async () => {
@@ -38,13 +33,13 @@ describe("Comment Service Unit Tests", () => {
           author: "user1",
           post: "post1",
           text: "hi",
-        })
+        }),
       ).to.be.true;
 
       expect(
         updateStub.calledOnceWith("post1", {
           $push: { comments: fakeComment._id },
-        })
+        }),
       ).to.be.true;
 
       expect(result).to.equal(fakeComment);
@@ -55,9 +50,7 @@ describe("Comment Service Unit Tests", () => {
     it("throws if comment not found", async () => {
       sinon.stub(Comment, "findById").resolves(null);
 
-      await expect(
-        deleteCommentService(new mongoose.Types.ObjectId(), "post1", "c1")
-      ).to.be.rejectedWith(AppError, /comment not found/);
+      await expect(deleteCommentService(new mongoose.Types.ObjectId(), "post1", "c1")).to.be.rejectedWith(AppError, /comment not found/);
     });
 
     it("throws if post not found", async () => {
@@ -66,9 +59,7 @@ describe("Comment Service Unit Tests", () => {
       sinon.stub(Comment, "findById").resolves(fakeComment);
       sinon.stub(Post, "findById").resolves(null);
 
-      await expect(
-        deleteCommentService(fakeComment.author, "post1", "c1")
-      ).to.be.rejectedWith(AppError, /Post not found/);
+      await expect(deleteCommentService(fakeComment.author, "post1", "c1")).to.be.rejectedWith(AppError, /Post not found/);
     });
 
     it("throws if user not author", async () => {
@@ -78,24 +69,17 @@ describe("Comment Service Unit Tests", () => {
       };
 
       sinon.stub(Comment, "findById").resolves(fakeComment);
-      sinon
-        .stub(Post, "findById")
-        .resolves({ _id: "post1", comments: [], save: sinon.stub() });
+      sinon.stub(Post, "findById").resolves({ _id: "post1", comments: [], save: sinon.stub() });
 
-      const otherUserId = new mongoose.Types.ObjectId(
-        "bbbbbbbbbbbbbbbbbbbbbbbb"
-      );
+      const otherUserId = new mongoose.Types.ObjectId("bbbbbbbbbbbbbbbbbbbbbbbb");
 
-      await expect(
-        deleteCommentService(otherUserId, "post1", "c1")
-      ).to.be.rejectedWith(AppError, /permission/);
+      await expect(deleteCommentService(otherUserId, "post1", "c1")).to.be.rejectedWith(AppError, /permission/);
     });
 
     it("deletes comment and removes from post", async () => {
       const userId = new mongoose.Types.ObjectId();
       const fakeComment = { _id: "c1", author: userId };
 
-      // make comments an actual array with a pull method
       const commentsArr = ["c1", "c2"];
       commentsArr.pull = function (id) {
         const idx = this.indexOf(id);
@@ -114,11 +98,8 @@ describe("Comment Service Unit Tests", () => {
 
       await deleteCommentService(userId, "post1", "c1");
 
-      // comment deletion
       expect(deleteStub.calledOnceWith("c1")).to.be.true;
-      // pull removed "c1" from the comments array
       expect(fakePost.comments).to.not.include("c1");
-      // and saved the post
       expect(fakePost.save.calledOnce).to.be.true;
     });
   });

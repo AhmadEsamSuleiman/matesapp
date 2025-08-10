@@ -1,5 +1,3 @@
-// models/userInterestStatsModel.js
-
 import mongoose from "mongoose";
 
 const userInterestStatsSchema = new mongoose.Schema(
@@ -30,18 +28,11 @@ const userInterestStatsSchema = new mongoose.Schema(
   },
   {
     timestamps: false,
-  }
+  },
 );
 
-// Unique per user+entityType+name
-userInterestStatsSchema.index(
-  { userId: 1, entityType: 1, name: 1 },
-  { unique: true }
-);
+userInterestStatsSchema.index({ userId: 1, entityType: 1, name: 1 }, { unique: true });
 
-const UserInterestStats = mongoose.model(
-  "UserInterestStats",
-  userInterestStatsSchema
-);
+const UserInterestStats = mongoose.model("UserInterestStats", userInterestStatsSchema);
 
 export default UserInterestStats;

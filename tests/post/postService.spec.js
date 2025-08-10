@@ -4,12 +4,7 @@ import mongoose from "mongoose";
 import Post from "../../models/postModel.js";
 import Comment from "../../models/commentModel.js";
 import AppError from "../../utils/appError.js";
-import {
-  createPostService,
-  getPostService,
-  toggleLikeService,
-  deletePostService,
-} from "../../services/post/postService.js";
+import { createPostService, getPostService, toggleLikeService, deletePostService } from "../../services/post/postService.js";
 
 describe("Post Service Unit Tests", () => {
   afterEach(() => sinon.restore());
@@ -19,8 +14,7 @@ describe("Post Service Unit Tests", () => {
       const fake = { _id: "p1", creator: "u1", content: "Hello" };
       const stub = sinon.stub(Post, "create").resolves(fake);
       const result = await createPostService("u1", { content: "Hello" });
-      expect(stub.calledOnceWith({ creator: "u1", content: "Hello" })).to.be
-        .true;
+      expect(stub.calledOnceWith({ creator: "u1", content: "Hello" })).to.be.true;
       expect(result).to.equal(fake);
     });
   });
@@ -28,10 +22,7 @@ describe("Post Service Unit Tests", () => {
   describe("getPostService", () => {
     it("throws if post not found", async () => {
       sinon.stub(Post, "findById").resolves(null);
-      await expect(getPostService("p1")).to.be.rejectedWith(
-        AppError,
-        /post not found/
-      );
+      await expect(getPostService("p1")).to.be.rejectedWith(AppError, /post not found/);
     });
 
     it("returns post when found", async () => {
@@ -46,10 +37,7 @@ describe("Post Service Unit Tests", () => {
     const uid = new mongoose.Types.ObjectId();
     it("throws if post missing", async () => {
       sinon.stub(Post, "findById").resolves(null);
-      await expect(toggleLikeService(uid, "p1")).to.be.rejectedWith(
-        AppError,
-        /Post not found/
-      );
+      await expect(toggleLikeService(uid, "p1")).to.be.rejectedWith(AppError, /Post not found/);
     });
 
     it("likes a post not already liked", async () => {
@@ -87,19 +75,13 @@ describe("Post Service Unit Tests", () => {
     const uid = new mongoose.Types.ObjectId();
     it("throws if post not found", async () => {
       sinon.stub(Post, "findById").resolves(null);
-      await expect(deletePostService(uid, "p1")).to.be.rejectedWith(
-        AppError,
-        /post not found/
-      );
+      await expect(deletePostService(uid, "p1")).to.be.rejectedWith(AppError, /post not found/);
     });
 
     it("throws if user not creator", async () => {
       const postDoc = { _id: "p1", creator: new mongoose.Types.ObjectId() };
       sinon.stub(Post, "findById").resolves(postDoc);
-      await expect(deletePostService(uid, "p1")).to.be.rejectedWith(
-        AppError,
-        /permission/
-      );
+      await expect(deletePostService(uid, "p1")).to.be.rejectedWith(AppError, /permission/);
     });
 
     it("deletes when author matches", async () => {

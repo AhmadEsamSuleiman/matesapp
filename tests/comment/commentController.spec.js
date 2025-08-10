@@ -8,7 +8,9 @@ import Comment from "../../models/commentModel.js";
 import Post from "../../models/postModel.js";
 
 describe("Comment Controller Integration", () => {
-  let token, user, post;
+  let token;
+  let user;
+  let post;
 
   beforeEach(async () => {
     ({ user } = await insertUser());
@@ -27,7 +29,6 @@ describe("Comment Controller Integration", () => {
       expect(res.body).to.have.property("comment");
       expect(res.body.comment).to.have.property("text", "Nice post!");
 
-      // verify the comment is actually in the DB and linked to post
       const saved = await Comment.findById(res.body.comment._id);
       expect(saved).to.exist;
       const updatedPost = await Post.findById(post._id);
@@ -35,18 +36,11 @@ describe("Comment Controller Integration", () => {
     });
 
     it("rejects invalid payload", async () => {
-      await request(app)
-        .post(`/api/v1/comment/${post._id}/comments`)
-        .set("Authorization", `Bearer ${token}`)
-        .send({})
-        .expect(400);
+      await request(app).post(`/api/v1/comment/${post._id}/comments`).set("Authorization", `Bearer ${token}`).send({}).expect(400);
     });
 
     it("rejects when unauthenticated", async () => {
-      await request(app)
-        .post(`/api/v1/comment/${post._id}/comments`)
-        .send({ text: "Hi" })
-        .expect(401);
+      await request(app).post(`/api/v1/comment/${post._id}/comments`).send({ text: "Hi" }).expect(401);
     });
   });
 
@@ -66,25 +60,17 @@ describe("Comment Controller Integration", () => {
     });
 
     it("deletes own comment", async () => {
-      await request(app)
-        .delete(`/api/v1/comment/${post._id}/comments/${comment._id}`)
-        .set("Authorization", `Bearer ${token}`)
-        .expect(204);
+      await request(app).delete(`/api/v1/comment/${post._id}/comments/${comment._id}`).set("Authorization", `Bearer ${token}`).expect(204);
 
       const exists = await Comment.findById(comment._id);
       expect(exists).to.be.null;
       const updatedPost = await Post.findById(post._id);
-      expect(updatedPost.comments.map(String)).to.not.include(
-        String(comment._id)
-      );
+      expect(updatedPost.comments.map(String)).to.not.include(String(comment._id));
     });
 
     it("rejects deleting someone else's comment", async () => {
       const otherUser = await insertUser({ email: "x@x.com", userName: "x" });
-      const otherToken = jwt.sign(
-        { id: otherUser.user._id },
-        process.env.JWT_SECRET || "secret"
-      );
+      const otherToken = jwt.sign({ id: otherUser.user._id }, process.env.JWT_SECRET || "secret");
 
       await request(app)
         .delete(`/api/v1/comment/${post._id}/comments/${comment._id}`)

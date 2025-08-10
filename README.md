@@ -20,7 +20,6 @@
    Tracks each user’s preferences at three levels: Category, Subcategory, and Specific Interest. Updates all levels on every engagement to capture both broad and niche interests.
 
 2. **Dual-Layer Scoring**
-
    - **Persistent Layer (MongoDB)**: Stores long-term profiles using Exponential Moving Averages (EMA) with a low alpha to maintain stability.
    - **Real-Time Layer (Redis Session)**: Captures session-level activity with a higher EMA alpha for responsive updates.
 
@@ -32,7 +31,6 @@
 
 5. **Personalized Feed Generation**
    Gathers posts from multiple sources (_buckets_):
-
    - Top Interests
    - Rising Interests
    - Favorite Creators
@@ -47,27 +45,22 @@
 ## How It Works
 
 1. **New User / Exploration**
-
    - No profile: feed is exploratory or trending posts only.
 
 2. **User Engagement**
-
    - **Endpoint:** `POST /engagement/positive`
    - Computes an engagement score (weighted sum of actions).
    - Updates global stats, post metrics and user profile using EMA for interests and creators.
 
 3. **Negative Feedback (Skips)**
-
    - **Endpoint:** `POST /engagement/negative`
    - Applies a negative weight to relevant interests or creators.
    - Temporarily filters out skipped content.
 
 4. **Interest Decay**
-
    - EMA-based decay: interest scores fade over time if not reinforced (half-life \~0.5 days).
 
 5. **Fetching the Feed**
-
    - **Endpoint:** `GET /feed`
    - Builds interest pools from MongoDB and Redis.
    - Fetches candidate posts per pool.
@@ -81,25 +74,21 @@
 - **Backend:** Node.js & Express
 - **Database:** MongoDB (persistent) & Redis (session data)
 - **Models:**
-
   - `User` (with nested interest docs)
   - `Post`
   - `GlobalStats` (category/creator aggregates)
   - `UserInterestStats`
 
 - **Controllers:**
-
   - `engagementController` (handles engagement endpoints)
   - `feedController` (constructs the feed)
 
 - **Services:**
-
   - Interest & Creator scoring (EMA logic)
   - Skip logic
   - Feed assembly & interleaving
 
 - **Utilities:**
-
   - `score.js` (EMA & decay)
   - `smoothingUtils.js` (Bayesian smoothing)
   - `interleaveByBucket.js` (feed composition)
@@ -129,7 +118,6 @@
    - Swagger docs at `/api-docs`
 
 4. **Usage Examples**
-
    - **Register User:** `POST /users`
    - **Create Posts** in various categories
    - **Login** to obtain JWT token

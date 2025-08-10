@@ -1,13 +1,8 @@
 import jwt from "jsonwebtoken";
+import sinon from "sinon";
 import User from "../../models/userModel.js";
 import AppError from "../../utils/appError.js";
-import {
-  signUpService,
-  loginUserService,
-  verifyTokenService,
-} from "../../services/auth/authService.js";
-
-import sinon from "sinon";
+import { signUpService, loginUserService, verifyTokenService } from "../../services/auth/authService.js";
 
 describe("Auth Service Unit Tests", () => {
   afterEach(() => {
@@ -39,10 +34,7 @@ describe("Auth Service Unit Tests", () => {
     it("throws AppError when creation returns falsy", async () => {
       sinon.stub(User, "create").resolves(null);
 
-      await expect(signUpService({})).to.be.rejectedWith(
-        AppError,
-        /User creation failed/
-      );
+      await expect(signUpService({})).to.be.rejectedWith(AppError, /User creation failed/);
     });
   });
 
@@ -86,24 +78,16 @@ describe("Auth Service Unit Tests", () => {
     });
 
     it("throws on missing user", async () => {
-      sinon
-        .stub(User, "findOne")
-        .returns({ select: () => Promise.resolve(null) });
+      sinon.stub(User, "findOne").returns({ select: () => Promise.resolve(null) });
 
-      await expect(
-        loginUserService({ email: "u", password: "p" })
-      ).to.be.rejectedWith(AppError, /user name or email is incorrect/);
+      await expect(loginUserService({ email: "u", password: "p" })).to.be.rejectedWith(AppError, /user name or email is incorrect/);
     });
 
     it("throws on wrong password", async () => {
-      sinon
-        .stub(User, "findOne")
-        .returns({ select: () => Promise.resolve(fakeUser) });
+      sinon.stub(User, "findOne").returns({ select: () => Promise.resolve(fakeUser) });
       fakeUser.comparePassword.resolves(false);
 
-      await expect(
-        loginUserService({ email: "u", password: "p" })
-      ).to.be.rejectedWith(AppError, /password.*incorrect/);
+      await expect(loginUserService({ email: "u", password: "p" })).to.be.rejectedWith(AppError, /password.*incorrect/);
     });
   });
 
@@ -134,20 +118,14 @@ describe("Auth Service Unit Tests", () => {
     it("throws if user not found", async () => {
       sinon.stub(User, "findById").resolves(null);
 
-      await expect(verifyTokenService("token")).to.be.rejectedWith(
-        AppError,
-        /no longer exists/
-      );
+      await expect(verifyTokenService("token")).to.be.rejectedWith(AppError, /no longer exists/);
     });
 
     it("throws if password changed after token issued", async () => {
       const fakeUser = { _id: "u", changedPasswordAfter: () => true };
       sinon.stub(User, "findById").resolves(fakeUser);
 
-      await expect(verifyTokenService("tok")).to.be.rejectedWith(
-        AppError,
-        /changed password/
-      );
+      await expect(verifyTokenService("tok")).to.be.rejectedWith(AppError, /changed password/);
     });
   });
 });

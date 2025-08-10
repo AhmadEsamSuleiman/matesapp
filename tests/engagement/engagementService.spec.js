@@ -1,17 +1,11 @@
 import sinon from "sinon";
-
-// import mongoose from "mongoose";
 import Post from "../../models/postModel.js";
 import User from "../../models/userModel.js";
 import GlobalStats from "../../models/globalStatsModel.js";
 import CreatorStats from "../../models/creatorStatsModel.js";
 import UserInterestStats from "../../models/userInterestStatsModel.js";
 
-import {
-  getPostAndUserService,
-  markPostSeenService,
-  updateEngagementStatsService,
-} from "../../services/engagement/engagementService.js";
+import { getPostAndUserService, markPostSeenService, updateEngagementStatsService } from "../../services/engagement/engagementService.js";
 import AppError from "../../utils/appError.js";
 
 describe("Engagement Service Unit Tests", () => {
@@ -30,19 +24,13 @@ describe("Engagement Service Unit Tests", () => {
 
     it("throws 404 if post missing", async () => {
       sinon.stub(Post, "findById").resolves(null);
-      await expect(getPostAndUserService("p1", "u1")).to.be.rejectedWith(
-        AppError,
-        /Post not found/
-      );
+      await expect(getPostAndUserService("p1", "u1")).to.be.rejectedWith(AppError, /Post not found/);
     });
 
     it("throws 404 if user missing", async () => {
       sinon.stub(Post, "findById").resolves({ _id: "p1" });
       sinon.stub(User, "findById").resolves(null);
-      await expect(getPostAndUserService("p1", "u1")).to.be.rejectedWith(
-        AppError,
-        /User not found/
-      );
+      await expect(getPostAndUserService("p1", "u1")).to.be.rejectedWith(AppError, /User not found/);
     });
   });
 
@@ -68,84 +56,47 @@ describe("Engagement Service Unit Tests", () => {
 
     it("increments all relevant counters including subCategory", async () => {
       const postUpdateStub = sinon.stub(Post, "findByIdAndUpdate").resolves();
-      const categoryGlobalStatsStub = sinon
-        .stub(GlobalStats, "findOneAndUpdate")
-        .resolves();
-      const categoryUserInterestStub = sinon
-        .stub(UserInterestStats, "findOneAndUpdate")
-        .resolves();
-      const creatorStatsStub = sinon
-        .stub(CreatorStats, "findOneAndUpdate")
-        .resolves();
+      const categoryGlobalStatsStub = sinon.stub(GlobalStats, "findOneAndUpdate").resolves();
+      const categoryUserInterestStub = sinon.stub(UserInterestStats, "findOneAndUpdate").resolves();
+      const creatorStatsStub = sinon.stub(CreatorStats, "findOneAndUpdate").resolves();
 
       await updateEngagementStatsService(data);
 
-      // Post impressions + engagement
-      sinon.assert.calledWith(
-        postUpdateStub,
-        "p1",
-        sinon.match({ $inc: { impressionCount: 1, engagementSum: 5 } })
-      );
+      sinon.assert.calledWith(postUpdateStub, "p1", sinon.match({ $inc: { impressionCount: 1, engagementSum: 5 } }));
 
-      // Category-level global stats
-      sinon.assert.calledWith(
-        categoryGlobalStatsStub,
-        { entityType: "category", name: "Cat" },
-        sinon.match.any,
-        sinon.match.object
-      );
-      // Category-level user interest stats
+      sinon.assert.calledWith(categoryGlobalStatsStub, { entityType: "category", name: "Cat" }, sinon.match.any, sinon.match.object);
+
       sinon.assert.calledWith(
         categoryUserInterestStub,
         { userId: "u1", entityType: "category", name: "Cat" },
         sinon.match.any,
-        sinon.match.object
-      );
-      // Creator-level stats
-      sinon.assert.calledWith(
-        creatorStatsStub,
-        { creatorId: "c1" },
-        sinon.match.any,
-        sinon.match.object
+        sinon.match.object,
       );
 
-      // Subcategory-level stats
-      sinon.assert.calledWith(
-        categoryGlobalStatsStub,
-        { entityType: "subcategory", name: "Sub" },
-        sinon.match.any,
-        sinon.match.object
-      );
+      sinon.assert.calledWith(creatorStatsStub, { creatorId: "c1" }, sinon.match.any, sinon.match.object);
+
+      sinon.assert.calledWith(categoryGlobalStatsStub, { entityType: "subcategory", name: "Sub" }, sinon.match.any, sinon.match.object);
       sinon.assert.calledWith(
         categoryUserInterestStub,
         { userId: "u1", entityType: "subcategory", name: "Sub" },
         sinon.match.any,
-        sinon.match.object
+        sinon.match.object,
       );
     });
 
     it("skips subCategory updates when subCategory is undefined", async () => {
       const postUpdateStub = sinon.stub(Post, "findByIdAndUpdate").resolves();
-      const categoryGlobalStatsStub = sinon
-        .stub(GlobalStats, "findOneAndUpdate")
-        .resolves();
-      const categoryUserInterestStub = sinon
-        .stub(UserInterestStats, "findOneAndUpdate")
-        .resolves();
-      const creatorStatsStub = sinon
-        .stub(CreatorStats, "findOneAndUpdate")
-        .resolves();
+      const categoryGlobalStatsStub = sinon.stub(GlobalStats, "findOneAndUpdate").resolves();
+      const categoryUserInterestStub = sinon.stub(UserInterestStats, "findOneAndUpdate").resolves();
+      const creatorStatsStub = sinon.stub(CreatorStats, "findOneAndUpdate").resolves();
 
       await updateEngagementStatsService({ ...data, subCategory: undefined });
 
-      // Always increments post-level stats
       sinon.assert.calledOnce(postUpdateStub);
 
-      // Only one category‐level global and one user‐interest update
       expect(categoryGlobalStatsStub.callCount).to.equal(1);
       expect(categoryUserInterestStub.callCount).to.equal(1);
 
-      // CreatorStats should still be called once
       expect(creatorStatsStub.callCount).to.equal(1);
     });
   });

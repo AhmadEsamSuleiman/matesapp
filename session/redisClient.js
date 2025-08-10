@@ -1,25 +1,27 @@
-import isEnabled from "../utils/isRedisEnabled.js";
 import Redis from "ioredis";
+import isEnabled from "../utils/isRedisEnabled.js";
 
-let redis;
+let redisClient;
 
 if (isEnabled()) {
-  redis = new Redis({
+  redisClient = new Redis({
     host: process.env.REDIS_HOST,
     port: Number(process.env.REDIS_PORT),
     username: process.env.REDIS_USERNAME,
     password: process.env.REDIS_PASSWORD,
   });
 
-  redis.on("connect", () => {
+  redisClient.on("connect", () => {
     console.log("Connected to Redis Cloud");
   });
 
-  redis.on("error", (err) => {
+  redisClient.on("error", (err) => {
     console.error("Redis connection error:", err);
   });
 } else {
-  console.log(`redis disabled`);
+  console.log("redis disabled");
 }
+
+const redis = redisClient;
 
 export default redis;

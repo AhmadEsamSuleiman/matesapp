@@ -14,9 +14,12 @@
  * - **Engagement Weights:** How much different user actions (like, comment, view) contribute to a post's score.
  * - **Skip/Negative Feedback:** How 'skips' affect scores and thresholds for hiding content.
  * - **Interest/Creator Prioritization:** Relative importance of broad interests vs. specific creators.
- * - **Trending Algorithms:** Parameters for calculating a post's "trending" status, including activity normalization and burst factors.
- * - **Temporal Decay:** How scores naturally decrease over time (half-life), crucial for keeping feeds fresh and prioritizing recent engagement.
- * - **Exponential Moving Averages (EMA):** Alpha values determining the sensitivity of EMA calculations for both session-based and persistent (database) scores.
+ * - **Trending Algorithms:** Parameters for calculating a post's "trending" status,
+ * including activity normalization and burst factors.
+ * - **Temporal Decay:** How scores naturally decrease over time (half-life),
+ * crucial for keeping feeds fresh and prioritizing recent engagement.
+ * - **Exponential Moving Averages (EMA):** Alpha values determining the sensitivity of EMA calculations
+ * for both session-based and persistent (database) scores.
  * - **Evergreen Content:** Thresholds for identifying content that consistently performs well.
  * - **Rising Content:** Parameters for detecting content that is rapidly gaining popularity.
  * - **Bayesian Prior Smoothing:** Constants for stabilizing scores, especially for new items, by incorporating global average data.
@@ -108,6 +111,9 @@ export const EMA_ALPHA_SESSION = 0.7;
 // the EMA more responsive to very recent user actions, providing a
 // highly dynamic and real-time reflection of interest during a session.
 
+export const MIN_INITIAL_RISING_WEIGHT = 10;
+// min weight to detect rising post if lastUpdatedAt = createdAt
+
 export const MIN_RAW_FOR_EVERGREEN = 1000;
 // A minimum cumulative raw score (sum of all engagement weights) a post
 // must achieve to even be considered as "evergreen" content. This prevents
@@ -170,7 +176,6 @@ export const PRIOR_MIN_COUNT = 1;
 // always at least some statistical weight applied to prevent division by zero
 // or undefined behavior.
 
-export const PRIOR_DECAY_LAMBDA =
-  Math.log(2) / (PRIOR_HALF_LIFE_HOURS * 3600 * 1000);
+export const PRIOR_DECAY_LAMBDA = Math.log(2) / (PRIOR_HALF_LIFE_HOURS * 3600 * 1000);
 // The pre-calculated decay rate (lambda) for the Bayesian prior count,
 // derived from its half-life. This is used in the exponential decay formula.
