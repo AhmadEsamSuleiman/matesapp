@@ -49,8 +49,6 @@ services:
       KAFKA_BROKER: "kafka:9092"
       PORT: "3000"
       HOST: "0.0.0.0"
-    volumes:
-      - /usr/src/app/node_modules
     command: npm start
     restart: always
     healthcheck:
