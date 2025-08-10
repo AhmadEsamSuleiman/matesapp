@@ -54,7 +54,7 @@ services:
       KAFKA_BROKER: "kafka:9092"
       PORT: "3000"
       HOST: "0.0.0.0"
-    command: ["./wait-for-it.sh", "kafka", "9092", "--", "npm", "start"]
+    command: ["./wait-for-it.sh", "kafka", "9092", "npm", "start"]
     restart: always
     healthcheck:
       test: ["CMD-SHELL", "curl --fail --max-time 5 http://localhost:3000/health || exit 1"]
