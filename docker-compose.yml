@@ -8,12 +8,18 @@ services:
       ZOOKEEPER_CLIENT_PORT: "2181"
       ZOOKEEPER_TICK_TIME: "2000"
     restart: always
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   kafka:
     image: confluentinc/cp-kafka:7.4.0
     container_name: mates-kafka
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
     ports:
       - "9092:9092"
     environment:
@@ -24,14 +30,19 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
-    command: sh -c "echo 'waiting for zookeeper...' && while ! nc -z zookeeper 2181; do sleep 1; done && echo 'zookeeper is up, starting kafka...' && /etc/confluent/docker/run"
     restart: always
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "9092"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   app:
     build: .
     container_name: mates-app
     depends_on:
-      - kafka
+      kafka:
+        condition: service_healthy
     ports:
       - "3000:3000"
     environment:
@@ -40,5 +51,5 @@ services:
       HOST: "0.0.0.0"
     volumes:
       - /usr/src/app/node_modules
-    command: sh -c "./wait-for-it.sh kafka 9092 && sleep 30 && npm start"
+    command: npm start
     restart: always
