@@ -72,6 +72,15 @@ app.use("/api/", apiLimiter);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
+    env: process.env.NODE_ENV || "development",
+  });
+});
+
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/engagement", engagementRouter);
 app.use("/api/v1/feed", feedRouter);

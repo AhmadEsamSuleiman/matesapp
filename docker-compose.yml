@@ -9,7 +9,7 @@ services:
       ZOOKEEPER_TICK_TIME: "2000"
     restart: always
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      test: ["CMD-SHELL", "nc -z localhost 2181 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -23,6 +23,7 @@ services:
     ports:
       - "9092:9092"
     environment:
+      KAFKA_HEAP_OPTS: "-Xms128m -Xmx256m"
       KAFKA_BROKER_ID: "1"
       KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
       KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092"
@@ -32,10 +33,14 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
     restart: always
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "9092"]
+      test: ["CMD-SHELL", "nc -z localhost 9092 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
 
   app:
     build: .
@@ -49,11 +54,11 @@ services:
       KAFKA_BROKER: "kafka:9092"
       PORT: "3000"
       HOST: "0.0.0.0"
-    command: npm start
+    command: ["./wait-for-it.sh", "kafka:9092", "--", "npm", "start"]
     restart: always
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      test: ["CMD-SHELL", "curl --fail --max-time 5 http://localhost:3000/health || exit 1"]
       interval: 30s
-      timeout: 10s
+      timeout: 5s
       retries: 10
-      start_period: 40s
+      start_period: 120s
